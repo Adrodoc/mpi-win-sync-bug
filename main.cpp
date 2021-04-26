@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
     MPI_Win_allocate(win_size, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &mem, &win);
     if (rank == 0)
         mem[0] = 1;
+    MPI_Win_fence(0, win);
     MPI_Win_lock_all(0, win);
 
     switch (rank)
