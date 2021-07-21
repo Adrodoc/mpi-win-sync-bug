@@ -8,13 +8,12 @@ int main(int argc, char *argv[])
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    MPI_Aint win_size = rank == 0 ? sizeof(int) : 0;
-    int *mem;
+    MPI_Aint win_size = rank == 0 ? 1 : 0;
+    uint8_t *mem;
     MPI_Win win;
-    MPI_Win_allocate(win_size, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &mem, &win);
+    MPI_Win_allocate(win_size * sizeof(uint8_t), sizeof(uint8_t), MPI_INFO_NULL, MPI_COMM_WORLD, &mem, &win);
     if (rank == 0)
-        mem[0] = 1;
-    MPI_Win_fence(0, win);
+        *mem = 1;
     MPI_Win_lock_all(0, win);
 
     switch (rank)
@@ -26,7 +25,7 @@ int main(int argc, char *argv[])
         {
             MPI_Win_sync(win);
         } while (*mem == 1);
-        std::cout << "2: Finished" << std::endl;
+        std::cout << "0: Finished" << std::endl;
         break;
     }
     case 1:
@@ -34,12 +33,12 @@ int main(int argc, char *argv[])
         std::cout << "1: Sleeping..." << std::endl;
         sleep(1);
         std::cout << "1: Accumulating..." << std::endl;
-        int zero = 0;
-        MPI_Accumulate(&zero, 1, MPI_INT,
-                       0, 0, 1, MPI_INT,
+        uint8_t zero = 0;
+        MPI_Accumulate(&zero, 1, MPI_UINT8_T,
+                       0, 0, 1, MPI_UINT8_T,
                        MPI_REPLACE, win);
         std::cout << "1: Flushing..." << std::endl;
-        MPI_Win_flush_local(0, win);
+        MPI_Win_flush(0, win);
         std::cout << "1: Finished" << std::endl;
         break;
     }
