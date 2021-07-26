@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     {
     case 0:
     {
-        std::cout << "0: Spinning..." << std::endl;
+        std::cout << "0: Waiting..." << std::endl;
         // uint8_t locked;
         do
         {
@@ -51,11 +51,10 @@ int main(int argc, char *argv[])
     {
         std::cout << "1: Sleeping..." << std::endl;
         sleep(1);
-        std::cout << "1: Accumulating..." << std::endl;
+        std::cout << "1: Notifying..." << std::endl;
         uint8_t zero = 0;
-        MPI_Accumulate(&zero, 1, MPI_UINT8_T,
-                       0, 0, 1, MPI_UINT8_T,
-                       MPI_REPLACE, win);
+        MPI_Put(&zero, 1, MPI_UINT8_T, 0, 0, 1, MPI_UINT8_T, win);
+        // MPI_Accumulate(&zero, 1, MPI_UINT8_T, 0, 0, 1, MPI_UINT8_T, MPI_REPLACE, win);
         std::cout << "1: Flushing..." << std::endl;
         MPI_Win_flush(0, win);
         std::cout << "1: Finished" << std::endl;
