@@ -4,9 +4,12 @@
 
 int main(int argc, char *argv[])
 {
+    std::cout << "Initializing..." << std::endl;
     MPI_Init(NULL, NULL);
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    std::cout << rank << ": Allocating window..." << std::endl;
 
     MPI_Aint win_size = rank == 0 ? 1 : 0;
     uint8_t *mem;
@@ -21,10 +24,31 @@ int main(int argc, char *argv[])
     case 0:
     {
         std::cout << "0: Spinning..." << std::endl;
+        uint8_t locked;
         do
         {
-            MPI_Win_sync(win);
-        } while (*mem == 1);
+            // MPI_Get(&locked, 1, MPI_UINT8_T, 0, 0, 1, MPI_UINT8_T, win);
+            uint8_t dummy;
+            MPI_Fetch_and_op(&dummy, &locked, MPI_UINT8_T, 0, 0, MPI_NO_OP, win);
+            // MPI_Win_flush_local(0, win);
+            MPI_Win_flush(0, win);
+            // MPI_Win_flush_all(win);
+
+            // MPI_Win_unlock_all(win);
+            // MPI_Win_lock_all(0, win);
+        } while (locked == 1);
+        // do
+        // {
+            // MPI_Win_sync(win);
+            // MPI_Win_flush_local(0, win);
+            // MPI_Win_flush_local(1, win);
+            // MPI_Win_flush(0, win);
+            // MPI_Win_flush(1, win);
+            // MPI_Win_flush_all(win);
+
+            // MPI_Win_unlock_all(win);
+            // MPI_Win_lock_all(0, win);
+        // } while (*mem == 1);
         std::cout << "0: Finished" << std::endl;
         break;
     }
