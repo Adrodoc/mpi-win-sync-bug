@@ -24,31 +24,26 @@ int main(int argc, char *argv[])
     case 0:
     {
         std::cout << "0: Spinning..." << std::endl;
-        uint8_t locked;
+        // uint8_t locked;
         do
         {
+            // Trigger MPI progress
+            int flag;
+            MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+
             // MPI_Get(&locked, 1, MPI_UINT8_T, 0, 0, 1, MPI_UINT8_T, win);
-            uint8_t dummy;
-            MPI_Fetch_and_op(&dummy, &locked, MPI_UINT8_T, 0, 0, MPI_NO_OP, win);
+            // uint8_t dummy;
+            // MPI_Fetch_and_op(&dummy, &locked, MPI_UINT8_T, 0, 0, MPI_NO_OP, win);
             // MPI_Win_flush_local(0, win);
-            MPI_Win_flush(0, win);
-            // MPI_Win_flush_all(win);
-
-            // MPI_Win_unlock_all(win);
-            // MPI_Win_lock_all(0, win);
-        } while (locked == 1);
-        // do
-        // {
-            // MPI_Win_sync(win);
-            // MPI_Win_flush_local(0, win);
-            // MPI_Win_flush_local(1, win);
             // MPI_Win_flush(0, win);
-            // MPI_Win_flush(1, win);
             // MPI_Win_flush_all(win);
+        // } while (locked == 1);
+
+            MPI_Win_sync(win);
 
             // MPI_Win_unlock_all(win);
             // MPI_Win_lock_all(0, win);
-        // } while (*mem == 1);
+        } while (*mem == 1);
         std::cout << "0: Finished" << std::endl;
         break;
     }
